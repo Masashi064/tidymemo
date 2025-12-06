@@ -11,15 +11,12 @@ export function SiteHeader() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ログイン状態を監視
   useEffect(() => {
-    // 初回：現在のユーザーを取得
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
       setLoading(false);
     });
 
-    // 状態変化（ログイン/ログアウト）を購読
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,7 +38,7 @@ export function SiteHeader() {
 
     if (error) {
       console.error('Login error:', error.message);
-      alert('ログインに失敗しました');
+      alert('Failed to log in. Please try again.');
     }
   };
 
@@ -49,31 +46,29 @@ export function SiteHeader() {
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Logout error:', error.message);
-      alert('ログアウトに失敗しました');
+      alert('Failed to log out. Please try again.');
     }
   };
 
   return (
     <header className="border-b border-slate-800 bg-slate-950/80">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        {/* 左側：サイトタイトル（HOMEへのリンク） */}
+        {/* Left: site title */}
         <div className="flex items-center gap-2">
           <Link
             href="/"
             className="text-2xl font-bold text-slate-100 transition-colors hover:text-emerald-300"
           >
-            aaaのサイト
+            AppLabo
           </Link>
         </div>
 
-        {/* 右側：ログインボタン + 3点リーダーメニュー */}
+        {/* Right: login / logout + menu */}
         <nav className="flex items-center gap-2">
-          {/* ログイン / ログアウト */}
           {!loading && (
             <>
               {user ? (
                 <>
-                  {/* ログイン中：メールアドレス表示 + ログアウト */}
                   <span className="hidden text-xs text-slate-300 sm:inline">
                     {user.email}
                   </span>
@@ -82,7 +77,7 @@ export function SiteHeader() {
                     onClick={handleLogout}
                     className="rounded-full border border-sky-500 px-3 py-1 text-sm font-medium text-sky-200 hover:bg-sky-500/10"
                   >
-                    ログアウト
+                    Logout
                   </button>
                 </>
               ) : (
@@ -97,13 +92,13 @@ export function SiteHeader() {
             </>
           )}
 
-          {/* 3点リーダーメニュー */}
+          {/* 3-dot menu (そのまま日本語でもOKなら変更不要) */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
               className="rounded-full border border-slate-700 px-2 py-1 text-slate-100 hover:bg-slate-800"
-              aria-label="メニュー"
+              aria-label="Menu"
             >
               ⋯
             </button>
@@ -115,7 +110,7 @@ export function SiteHeader() {
                   className="block px-3 py-1 text-slate-100 hover:bg-slate-800"
                   onClick={() => setMenuOpen(false)}
                 >
-                  開発者へ連絡
+                  Contact developer
                 </Link>
               </div>
             )}
