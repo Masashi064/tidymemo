@@ -3,8 +3,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import Image from 'next/image';   // ← 追加
-
+import Image from 'next/image';
 
 type Category = 'bug' | 'feature' | 'other';
 
@@ -22,83 +21,81 @@ export default function ContactPage() {
     setInfo(null);
 
     if (!message.trim()) {
-        setError('内容を入力してください。');
-        return;
+      setError('Please enter your message.');
+      return;
     }
 
     setSubmitting(true);
     try {
-        const userAgent =
+      const userAgent =
         typeof navigator !== 'undefined' ? navigator.userAgent : null;
-        const pagePath =
+      const pagePath =
         typeof window !== 'undefined' ? window.location.pathname : null;
 
-        // app/contact/page.tsx の handleSubmit 内
-        const { error: insertError } = await supabase
+      // inside handleSubmit in app/contact/page.tsx
+      const { error: insertError } = await supabase
         .from('vol_feedback')
         .insert({
-            category,
-            message,
-            contact: contact || null,
-            user_agent: userAgent,
-            page_path: pagePath,
+          category,
+          message,
+          contact: contact || null,
+          user_agent: userAgent,
+          page_path: pagePath,
         });
 
-        if (insertError) {
-        // 個別に見る
+      if (insertError) {
+        // Log details
         console.error('insertError message:', (insertError as any).message);
         console.error('insertError code:', (insertError as any).code);
         console.error('insertError details:', (insertError as any).details);
 
-        // 必要ならアラートで可視化
+        // Optional: visualize via alert
         alert(
-            'Supabase Error:\n' +
-            JSON.stringify(insertError, null, 2),
+          'Supabase Error:\n' +
+          JSON.stringify(insertError, null, 2),
         );
 
         setError(
-            '送信中にエラーが発生しました。時間をおいて再度お試しください。',
+          'An error occurred while sending. Please try again later.',
         );
         return;
-        }
+      }
 
-
-        setMessage('');
-        setContact('');
-        setCategory('feature');
-        setInfo(
-        'フィードバックありがとうございます！今後の改善の参考にさせていただきます。',
-        );
+      setMessage('');
+      setContact('');
+      setCategory('feature');
+      setInfo(
+        'Thank you for your feedback! We will use it to improve this site.',
+      );
     } finally {
-        setSubmitting(false);
+      setSubmitting(false);
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-xl px-4 py-8">
-        {/* アイコン＋タイトル＋自己紹介 */}
+        {/* Icon + title + intro */}
         <div className="mb-4 flex items-center gap-3">
-            <div>
-            <h1 className="text-2xl font-bold">ご意見・ご要望</h1>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold">Feedback</h1>
+          </div>
         </div>
 
         <p className="mb-4 text-sm text-slate-400">
-            本サイトに関する不具合の報告や、「こんな機能がほしい」といったご要望など、
-            なんでも気軽に送っていただけるフォームです。すべてには返信できないかもしれませんが、今後の改善の参考にさせていただきます。
+          You can use this form to report bugs or suggest new features for this site.
+          I may not be able to reply to every message, but all feedback will be used
+          to improve the service.
         </p>
 
         <form
           onSubmit={handleSubmit}
           className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow"
         >
-          {/* 種類 */}
+          {/* Type */}
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-slate-300">
-              種類
+              Type
             </label>
             <div className="flex flex-wrap gap-2 text-xs">
               <button
@@ -110,7 +107,7 @@ export default function ContactPage() {
                     : 'rounded-full bg-slate-800 px-3 py-1 text-slate-200 hover:bg-slate-700'
                 }
               >
-                不具合
+                Bug
               </button>
               <button
                 type="button"
@@ -121,7 +118,7 @@ export default function ContactPage() {
                     : 'rounded-full bg-slate-800 px-3 py-1 text-slate-200 hover:bg-slate-700'
                 }
               >
-                機能要望
+                Feature request
               </button>
               <button
                 type="button"
@@ -132,41 +129,41 @@ export default function ContactPage() {
                     : 'rounded-full bg-slate-800 px-3 py-1 text-slate-200 hover:bg-slate-700'
                 }
               >
-                その他
+                Other
               </button>
             </div>
           </div>
 
-          {/* 内容 */}
+          {/* Message */}
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-slate-300">
-              内容（必須）
+              Message (required)
             </label>
             <textarea
               className="h-32 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500"
-              placeholder="例）～～できない、おかしいところがある等"
+              placeholder="e.g. Something does not work as expected, error details, etc."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
           </div>
 
-          {/* 連絡先 */}
+          {/* Contact info */}
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-slate-300">
-              連絡先（任意）
+              Contact info (optional)
             </label>
             <input
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500"
-              placeholder="メールアドレスや X のID（返信が必要な場合のみ）"
+              placeholder="Email address or X (Twitter) handle (only if you need a reply)"
               value={contact}
               onChange={(e) => setContact(e.target.value)}
             />
             <p className="mt-1 text-[11px] text-slate-500">
-              原則として個別の回答はお約束できませんが、内容によってはこちらからご連絡を差し上げる場合があります。
+              I can’t promise individual replies, but I may contact you depending on your message.
             </p>
           </div>
 
-          {/* エラー / 情報表示 */}
+          {/* Error / Info */}
           {error && (
             <div className="mb-3 text-xs text-rose-300">{error}</div>
           )}
@@ -180,7 +177,7 @@ export default function ContactPage() {
               disabled={submitting}
               className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:opacity-60"
             >
-              {submitting ? '送信中…' : '送信する'}
+              {submitting ? 'Sending…' : 'Send'}
             </button>
           </div>
         </form>
